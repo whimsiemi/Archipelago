@@ -485,7 +485,7 @@ def set_rules(multiworld: MultiWorld, world: World, options: PTOptions, toppins:
         "Chef Task: Let Them Sleep": "CLIMB+GRAB | CLIMB+UPPER",
         "Chef Task: Jumpspared": "CLIMB+GRAB | CLIMB+UPPER",
         "Chef Task: And This... Is My Gun On A Stick!": "CLIMB+GRAB | CLIMB+UPPER",
-        "Don't Make A Sound S Rank": "CLIMB+GRAB | CLIMB+UPPER",
+        "Don't Make A Sound S Rank": "CLIMB+GRAB+TAUNT | CLIMB+UPPER+TAUNT",
 
     #WAR
         "WAR Complete": "GRAB+SJUMP | GRAB+CLIMB | UPPER+SJUMP | UPPER+CLIMB | GRAB+SLAM | UPPER+SLAM",
@@ -875,7 +875,7 @@ def set_rules(multiworld: MultiWorld, world: World, options: PTOptions, toppins:
         "Chef Task: Let Them Sleep": "CLIMB+SLAM+GRAB",
         "Chef Task: Jumpspared": "CLIMB+SLAM+GRAB",
         "Chef Task: And This... Is My Gun On A Stick!": "CLIMB+SLAM+GRAB",
-        "Don't Make A Sound S Rank": "CLIMB+SLAM+GRAB",
+        "Don't Make A Sound S Rank": "CLIMB+SLAM+GRAB+TAUNT",
 
     #WAR
         "WAR Complete": "GRAB+SJUMP+SLAM",
@@ -1379,7 +1379,7 @@ def set_rules(multiworld: MultiWorld, world: World, options: PTOptions, toppins:
         "Chef Task: Let Them Sleep": "SJUMP+GRAB | SJUMP+UPPER | CRUSH+GRAB | CRUSH+UPPER | BOUNCE+GRAB | BOUNCE+UPPER",
         "Chef Task: Jumpspared": "SJUMP+GRAB | SJUMP+UPPER | CRUSH+GRAB | CRUSH+UPPER | BOUNCE+GRAB | BOUNCE+UPPER",
         "Chef Task: And This... Is My Gun On A Stick!": "SJUMP+GRAB | SJUMP+UPPER | CRUSH+GRAB | CRUSH+UPPER | BOUNCE+GRAB | BOUNCE+UPPER",
-        "Don't Make A Sound S Rank": "SJUMP+GRAB | SJUMP+UPPER | CRUSH+GRAB | CRUSH+UPPER | BOUNCE+GRAB | BOUNCE+UPPER",
+        "Don't Make A Sound S Rank": "SJUMP+GRAB+TAUNT | SJUMP+UPPER+TAUNT | CRUSH+GRAB+TAUNT | CRUSH+UPPER+TAUNT | BOUNCE+GRAB+TAUNT | BOUNCE+UPPER+TAUNT",
 
     #WAR
         "WAR Complete": "GRAB+SJUMP | UPPER+SJUMP | GRAB+SLAM | UPPER+SLAM | GRAB+CRUSH | UPPER+CRUSH",
@@ -1758,7 +1758,7 @@ def set_rules(multiworld: MultiWorld, world: World, options: PTOptions, toppins:
         "Chef Task: Let Them Sleep": "SJUMP+SLAM+GRAB",
         "Chef Task: Jumpspared": "SJUMP+SLAM+GRAB",
         "Chef Task: And This... Is My Gun On A Stick!": "SJUMP+SLAM+GRAB",
-        "Don't Make A Sound S Rank": "SJUMP+SLAM+GRAB",
+        "Don't Make A Sound S Rank": "SJUMP+SLAM+GRAB+TAUNT",
 
     #WAR
         "WAR Complete": "GRAB+SJUMP+SLAM | GRAB+SJUMP+CRUSH | GRAB+SJUMP+TORN",
