@@ -402,7 +402,7 @@ def set_rules(multiworld: MultiWorld, world: World, options: PTOptions, toppins:
         "Chef Task: Say Oink!": "SLAM+DJUMP+TAUNT",
         "Chef Task: Pan Fried": "SLAM+SJUMP | SLAM+CLIMB",
         "Chef Task: Strike!": "SLAM+DJUMP+KICK",
-        "The Pig City S Rank": "SJUMP+SLAM+DJUMP | CLIMB+SLAM+DJUMP | UPPER+SLAM+DJUMP",
+        "The Pig City S Rank": "SJUMP+SLAM+DJUMP | CLIMB+SLAM+DJUMP",
 
     #Peppibot Factory
         "Peppibot Factory Complete": "SJUMP+SLAM | CLIMB+GRAB+SLAM | CLIMB+UPPER+SLAM",
@@ -792,7 +792,7 @@ def set_rules(multiworld: MultiWorld, world: World, options: PTOptions, toppins:
         "Chef Task: Say Oink!": "SLAM+DJUMP+TAUNT",
         "Chef Task: Pan Fried": "SLAM+DJUMP",
         "Chef Task: Strike!": "SLAM+DJUMP+KICK",
-        "The Pig City S Rank": "SJUMP+SLAM+DJUMP | CLIMB+SLAM+DJUMP",
+        "The Pig City S Rank": "SJUMP+SLAM+DJUMP+SPIN | CLIMB+SLAM+DJUMP+SPIN | SJUMP+SLAM+DJUMP+KICK | CLIMB+SLAM+DJUMP+KICK",
 
     #Peppibot Factory
         "Peppibot Factory Complete": "SJUMP+CLIMB+SLAM | SJUMP+UPPER+SLAM",
