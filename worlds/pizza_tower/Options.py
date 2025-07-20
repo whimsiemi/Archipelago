@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from Options import DefaultOnToggle, Range, NamedRange, Toggle, Choice, PerGameCommonOptions, OptionSet, OptionGroup, OptionDict, DeathLink
+from Options import DefaultOnToggle, Range, NamedRange, Toggle, Choice, PerGameCommonOptions, OptionSet, OptionGroup, OptionCounter, DeathLink
 from .Items import pt_items
 
 class ToppinCount(Range):
@@ -242,7 +242,7 @@ class ClothingFiller(Toggle):
     """
     display_name = "Shuffle Clothes"
 
-class FillerWeights(OptionDict):
+class FillerWeights(OptionCounter):
     """
     Determines how often each filler item appears in the itempool
     """
@@ -265,7 +265,7 @@ class ShuffleLap2(Toggle):
     """
     display_name = "Shuffle Lap 2 Portals"
 
-class TrapWeights(OptionDict):
+class TrapWeights(OptionCounter):
     """
     Determines how often each trap appears in the itempool
     """
