@@ -110,7 +110,7 @@ class PizzaTowerWorld(World):
     boss_map: dict[str, str]
     secret_map: dict[str, str]
 
-    item_name_to_id = {name: data[1] for name, data in pt_items.items()}
+    item_name_to_id = {name: data.id for name, data in pt_items.items()}
     location_name_to_id = pt_locations
 
     item_name_groups = pt_item_groups # not extremely important for this world but it's here for completeness
@@ -138,8 +138,8 @@ class PizzaTowerWorld(World):
             self.boss_map = {}
             self.secret_map = {}
 
-    def create_item(self, item: str) -> PTItem:
-        return PTItem(item, pt_items[item][2], pt_items[item][1], self.player)
+    def create_item(self, name: str) -> PTItem:
+        return PTItem(name, pt_items[name].classification, pt_items[name].id, self.player)
 
     def create_regions(self):
         create_regions(self.player, self.multiworld, self.options)
@@ -147,24 +147,8 @@ class PizzaTowerWorld(World):
     def create_items(self):
         pizza_itempool = []
 
-        locations_to_fill = 121
-        if self.options.secret_checks: locations_to_fill += 57
-        if self.options.treasure_checks: locations_to_fill += 19
-        if self.options.srank_checks: locations_to_fill += 24
-        if self.options.prank_checks: locations_to_fill += 24
-        if self.options.cheftask_checks: locations_to_fill += 72
-        if self.options.pumpkin_checks:
-            locations_to_fill += 30
-            if self.options.cheftask_checks: locations_to_fill += 2 #tricky treat chef tasks
-        if self.options.character == 0:
-            locations_to_fill += 7 #2 tutorial checks and its 5 toppins
-        elif self.options.character == 1:
-            locations_to_fill += 2 #no toppins in noise tutorial
-        #no tutorial in swap mode, so no tutorial checks
+        locations_to_fill = len(self.multiworld.get_unfilled_locations(self.player))
 
-        if not self.options.shuffle_boss_keys and not self.options.open_world:
-            locations_to_fill -= 4
-        
         #add lap 2 portal
         if self.options.shuffle_lap2:
             pizza_itempool.append(self.create_item("Lap 2 Portals"))
@@ -205,14 +189,14 @@ class PizzaTowerWorld(World):
                 if self.options.character == 0: self.multiworld.get_location("The Noise Defeated", self.player).place_locked_item(self.create_item("Boss Key"))
                 else: self.multiworld.get_location("The Doise Defeated", self.player).place_locked_item(self.create_item("Boss Key"))
                 self.multiworld.get_location("Fake Peppino Defeated", self.player).place_locked_item(self.create_item("Boss Key"))
+                locations_to_fill -= 4 #manually placed 4 items
         
         #add toppins, if we can
-        if self.options.toppin_count > (locations_to_fill - len(pizza_itempool)):
-            self.toppin_number = (locations_to_fill - len(pizza_itempool))
-            for i in range(locations_to_fill - len(pizza_itempool)): pizza_itempool.append(self.create_item("Toppin"))
-        else:
-            self.toppin_number = self.options.toppin_count
-            for i in range(self.options.toppin_count): pizza_itempool.append(self.create_item("Toppin"))
+        for i in range(self.options.toppin_count):
+            if locations_to_fill <= len(pizza_itempool):
+                break
+            pizza_itempool.append(self.create_item("Toppin"))
+            self.toppin_number = i+1
 
         #add pumpkins, if we can
         self.pumpkin_number = 0
