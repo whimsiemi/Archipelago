@@ -335,8 +335,8 @@ class TrickyTreatDoor(Range):
 
 class RingLink(Toggle):
     """
-    Enable ring link, receiving a ring link while in a stage will deduct points.
-    Getting hit will send a ring link to other players.
+    Links your in-level point gain/loss with other players.
+    Point gain is only linked when coming from pizza toppings, pizzasonas, clocks and bells.
     """
     display_name = "Ring Link"
 
