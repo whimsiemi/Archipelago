@@ -348,7 +348,7 @@ def set_rules(multiworld: MultiWorld, world: World, options: PTOptions, toppins:
 			"GRAB+KNIGHT+BALL | UPPER+KNIGHT+BALL"
 		),
         "Pizzascape S Rank": (
-			"GRAB+CLIMB+KNIGHT", 
+			"GRAB+CLIMB+KNIGHT+SJUMP", 
 			"UPPER+SJUMP+KNIGHT | UPPER+CLIMB+KNIGHT | GRAB+SJUMP+KNIGHT | GRAB+CLIMB+KNIGHT", 
 			"GRAB+SJUMP+KNIGHT", 
 			"GRAB+SJUMP+KNIGHT | UPPER+KNIGHT | GRAB+BOUNCE+KNIGHT | GRAB+CRUSH+KNIGHT"
@@ -532,7 +532,7 @@ def set_rules(multiworld: MultiWorld, world: World, options: PTOptions, toppins:
 			"SJUMP+SLAM | SJUMP+TORN | SJUMP+CRUSH | SJUMP+BOUNCE"
 		),
         "Bloodsauce Dungeon S Rank": (
-			"CLIMB+SLAM", 
+			"CLIMB+SLAM+SJUMP", 
 			"SJUMP+SLAM | CLIMB+SLAM", 
 			"SLAM+SJUMP | TORN+SJUMP | CRUSH+SJUMP", 
 			"SJUMP+SLAM | SJUMP+TORN | SJUMP+CRUSH | SJUMP+BOUNCE"
@@ -2178,8 +2178,8 @@ def set_rules(multiworld: MultiWorld, world: World, options: PTOptions, toppins:
 			"GHOST+BALL+BOUNCE+UPPER | GHOST+BALL+SJUMP | GHOST+BALL+CRUSH"
 		),
         "Tricky Treat Side Path Pumpkin 1": (
-			"UPPER | CLIMB | SJUMP", 
-			"UPPER | CLIMB | SJUMP", 
+			"UPPER | CLIMB", 
+			"UPPER | CLIMB", 
 			"UPPER | BOUNCE | SJUMP | CRUSH", 
 			"UPPER | BOUNCE | SJUMP | CRUSH"
 		),
@@ -2365,14 +2365,12 @@ def set_rules(multiworld: MultiWorld, world: World, options: PTOptions, toppins:
                     lvls_on_floor.append(levels_map[levels_list[floor_first_lvl_index + i]])
             add_s_ranked_task_rule(lvls_on_floor, location)
         elif ("Chef Task: Pumpkin Munchkin" in location.name):
-            add_rule(location, lambda state: state.has("Pumpkin", world.player, floor(pumpkins * (options.tricky_treat_cost / 100))))
-            lvls = levels_list.copy()
-            lvls.append("The Crumbling Tower of Pizza")
-            for lvl in lvls:
-                add_rule(location, interpret_rule(lvl + " Pumpkin", False))
+            for lvl in levels_list:
+                add_rule(location, lambda state, level=lvl: state.can_reach(world.get_location(f"{level} Pumpkin")))
+            add_rule(location, lambda state: state.can_reach(world.get_location("The Crumbling Tower of Pizza Pumpkin")))
             for i in range(5):
-                add_rule(location, interpret_rule(f"Tricky Treat Main Path Pumpkin {i+1}", False))
-                add_rule(location, interpret_rule(f"Tricky Treat Side Path Pumpkin {i+1}", False))
+                add_rule(location, lambda state, index=i: state.can_reach(world.get_location(f"Tricky Treat Main Path Pumpkin {index+1}")))
+                add_rule(location, lambda state, index=i: state.can_reach(world.get_location(f"Tricky Treat Side Path Pumpkin {index+1}")))
         else:
             if ("The Critic" in location.name) or ("The Ugly" in location.name) or ("Denoise" in location.name) or ("Faker" in location.name) or ("Face Off" in location.name):
                 if not options.prank_checks:
@@ -2396,7 +2394,7 @@ def set_rules(multiworld: MultiWorld, world: World, options: PTOptions, toppins:
     for i in range(3):
         if options.bonus_ladders < 5:
             level_name = levels_map[levels_list[i+16]]
-            set_rule(multiworld.get_entrance("Floor 5 Staff Only to " + level_name, world.player), interpret_rule(levels_list[i+16], 1))
+            set_rule(multiworld.get_entrance("Floor 5 Staff Only to " + level_name, world.player), interpret_rule(levels_list[i+16], True))
 
     #access rules for bosses
     for i in range(4):

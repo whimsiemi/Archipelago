@@ -259,7 +259,7 @@ def create_regions(player: int, world: MultiWorld, options: PTOptions):
         if options.cheftask_checks:
             region_trickytreat.locations.append(PTLocation(player, "Chef Task: Tricksy", 458, region_trickytreat))
             #add pumpkin munchkin to ctop since that's where the last obtainable pumpkin is
-            region_ctop.locations.append(PTLocation(player, "Chef Task: Pumpkin Munchkin", 457, region_ctop))
+            region_trickytreat.locations.append(PTLocation(player, "Chef Task: Pumpkin Munchkin", 457, region_trickytreat))
 
     #must handle chef tasks separately since they aren't common to all levels
     #weird naming here. cheftask_checks is the option bool, cheftasks_checks is the list of task names
