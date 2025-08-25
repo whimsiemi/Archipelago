@@ -8,6 +8,15 @@ from .Rules import set_rules
 from math import floor
 from typing import Any, TextIO
 
+def launch_client(*args: str):
+    from .Client import launch
+    launch_component(launch, name="PTClient", args=args)
+
+
+components.append(Component("Pizza Tower Client", "PTClient", func=launch_client, component_type=Type.CLIENT, icon='pizza'))
+
+icon_paths['pizza]'] = "./pizza.png"
+
 def internal_from_external(name: str):
     aliases = {
         "John Gutter": "entrance",
