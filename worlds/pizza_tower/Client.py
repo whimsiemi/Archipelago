@@ -12,6 +12,8 @@ DEBUG = True
 
 # THIS CODE IS LARGELY TAKEN FROM THE HAT IN TIME APWORLD! THANKS COOKIECAT FOR THE POINTERS! -whimsiemi
 
+# to-do list: handle printjsons via the proxy (to make datapackages redundant), clean up things a bit and find a way to properly disconnect proxy client to stop weird shenanigans across different worlds/slots
+
 class PTJSONToTextParser(JSONtoTextParser):
     def _handle_color(self, node: JSONMessagePart):
         return self._handle_text(node)  # No colors for the in-game text
@@ -82,17 +84,6 @@ class PTContext(CommonContext):
     def is_proxy_connected(self) -> bool:
         return self.endpoint and self.endpoint.socket.open
 
-    def on_print_json(self, args: dict):
-        text = self.gamejsontotext(deepcopy(args["data"]))
-        msg = {"cmd": "PrintJSON", "data": [{"text": text}], "type": "Chat"}
-        self.server_msgs.append(encode([msg]))
-
-        if self.ui:
-            self.ui.print_json(args["data"])
-        else:
-            text = self.jsontotextparser(args["data"])
-            logger.info(text)
-
     def update_items(self):
         # just to be safe - we might still have an inventory from a different room
         if not self.is_connected():
@@ -101,52 +92,27 @@ class PTContext(CommonContext):
         self.server_msgs.append(encode([{"cmd": "ReceivedItems", "index": 0, "items": self.full_inventory}]))
 
     def on_package(self, cmd: str, args: dict):
-        if cmd == "Connected":
-            json = args
-            # This data is not needed and causes the game to freeze for long periods of time in large asyncs.
-            if "slot_info" in json.keys():
-                json["slot_info"] = {}
-            if "players" in json.keys():
-                me: NetworkPlayer
-                for n in json["players"]:
-                    if n.slot == json["slot"] and n.team == json["team"]:
-                        me = n
-                        break
-
-                # Only put our player info in there as we actually need it
-                json["players"] = [me]
-            if DEBUG:
-                print(json)
-            self.connected_msg = encode([json])
+        if cmd == "RoomInfo":
+            #prepare roominfo packet to send to game client when it connects to our proxy
+            self.seed_name = args["seed_name"]
+            self.room_info = encode([args])
+        elif cmd == "Connected":
+            #same as roominfo except with the connected packet
+            self.connected_msg = encode([args])
             if self.awaiting_info:
                 self.server_msgs.append(self.room_info)
                 self.update_items()
                 self.awaiting_info = False
-
-        elif cmd == "RoomUpdate":
-            # Same story as above
-            json = args
-            if "players" in json.keys():
-                json["players"] = []
-
-            self.server_msgs.append(encode(json))
-
         elif cmd == "ReceivedItems":
+            #if index is 0 its the receiveditems packet sent on connect which contains all collected items thus far
             if args["index"] == 0:
                 self.full_inventory.clear()
-
             for item in args["items"]:
-                self.full_inventory.append(NetworkItem(*item))
-
+                self.full_inventory.append(item)
             self.server_msgs.append(encode([args]))
-
-        elif cmd == "RoomInfo":
-            self.seed_name = args["seed_name"]
-            self.room_info = encode([args])
-
+        #for now just send over all received data from the server in full we can make adjustments later if needed
         else:
-            if cmd != "PrintJSON":
-                self.server_msgs.append(encode([args]))
+            self.server_msgs.append(encode([args]))
 
     def run_gui(self):
         from kvui import GameManager
@@ -170,56 +136,37 @@ async def proxy(websocket, path: str = "/", ctx: PTContext = None):
             async for data in websocket:
                 if DEBUG:
                     logger.info(f"Incoming message: {data}")
-
-                for msg in decode(data):
-                    if msg["cmd"] == "Connect":
-                        # Proxy is connecting, make sure it is valid
-                        if msg["game"] != "Pizza Tower":
-                            logger.info("Aborting proxy connection: game is not Pizza Tower")
-                            await ctx.disconnect_proxy()
-                            break
-
-                        if ctx.seed_name:
-                            seed_name = msg.get("seed_name", "")
-                            if seed_name != "" and seed_name != ctx.seed_name:
-                                logger.info("Aborting proxy connection: seed mismatch from save file")
-                                logger.info(f"Expected: {ctx.seed_name}, got: {seed_name}")
-                                text = encode([{"cmd": "PrintJSON",
-                                                "data": [{"text": "Connection aborted - save file to seed mismatch"}]}])
-                                await ctx.send_msgs_proxy(text)
-                                await ctx.disconnect_proxy()
-                                break
-
-                        if ctx.auth:
-                            name = msg.get("name", "")
-                            if name != "" and name != ctx.auth:
-                                logger.info("Aborting proxy connection: player name mismatch from save file")
-                                logger.info(f"Expected: {ctx.auth}, got: {name}")
-                                text = encode([{"cmd": "PrintJSON",
-                                                "data": [{"text": "Connection aborted - player name mismatch"}]}])
-                                await ctx.send_msgs_proxy(text)
-                                await ctx.disconnect_proxy()
-                                break
-
-                        if ctx.connected_msg and ctx.is_connected():
-                            await ctx.send_msgs_proxy(ctx.connected_msg)
-                            ctx.update_items()
-                        continue
-                    if msg["cmd"] == "ClientPing":
-                        # Ensure that the client is still connected to the text client using a special packet
-                        text = encode([{"cmd": "ClientPong"}])
-                        await ctx.send_msgs_proxy(text)
-
-                    if not ctx.is_proxy_connected():
-                        break
-
-                    await ctx.send_msgs([msg])
-
+             
+                await parse_game_packets(ctx, data)
     except Exception as e:
         if not isinstance(e, websockets.WebSocketException):
             logger.exception(e)
     finally:
         await ctx.disconnect_proxy()
+
+async def parse_game_packets(ctx: PTContext, data):
+    for msg in decode(data):
+        #connection with server is handled by proxy client already, just send back the important data
+        if msg["cmd"] == "Connect":
+            # Proxy is connecting, make sure it is valid
+            if msg["game"] != "Pizza Tower":
+                logger.info("Aborting proxy connection: game is not Pizza Tower")
+                await ctx.disconnect_proxy()
+                break
+            #send over connection data and receiveditems if valid
+            if ctx.connected_msg and ctx.is_connected():
+                await ctx.send_msgs_proxy(ctx.connected_msg)
+                ctx.update_items()
+        elif msg["cmd"] == "ClientPing":
+            # Ensure that the client is still connected to the text client using a special packet
+            text = encode([{"cmd": "ClientPong"}])
+            await ctx.send_msgs_proxy(text)
+
+        elif not ctx.is_proxy_connected():
+            break
+        #send over any packets received from the game client to the server
+        else:
+            await ctx.send_msgs([msg])
 
 
 async def on_client_connected(ctx: PTContext):
