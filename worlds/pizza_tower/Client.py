@@ -8,7 +8,7 @@ from NetUtils import decode, encode, JSONtoTextParser, JSONMessagePart, NetworkI
 from MultiServer import Endpoint
 from CommonClient import CommonContext, gui_enabled, ClientCommandProcessor, logger, get_base_parser
 
-DEBUG = False
+DEBUG = True
 
 # THIS CODE IS LARGELY TAKEN FROM THE HAT IN TIME APWORLD! THANKS COOKIECAT FOR THE POINTERS! -whimsiemi
 
@@ -205,6 +205,10 @@ async def proxy(websocket, path: str = "/", ctx: PTContext = None):
                             await ctx.send_msgs_proxy(ctx.connected_msg)
                             ctx.update_items()
                         continue
+                    if msg["cmd"] == "ClientPing":
+                        # Ensure that the client is still connected to the text client using a special packet
+                        text = encode([{"cmd": "ClientPong"}])
+                        await ctx.send_msgs_proxy(text)
 
                     if not ctx.is_proxy_connected():
                         break
