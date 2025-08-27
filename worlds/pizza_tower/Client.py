@@ -145,8 +145,6 @@ async def proxy(websocket, path: str = "/", ctx: PTContext = None):
     ctx.endpoint = Endpoint(websocket)
     try:
         await on_client_connected(ctx)
-        if ctx.is_connected() == False:
-            ctx.connected = False
         if ctx.is_proxy_connected():
             async for data in websocket:
                 if DEBUG:
@@ -196,6 +194,8 @@ async def on_client_connected(ctx: PTContext):
 async def proxy_loop(ctx: PTContext):
     try:
         while not ctx.exit_event.is_set():
+            if not ctx.is_connected():
+                ctx.connected = False
             if len(ctx.server_msgs) > 0:
                 for msg in ctx.server_msgs:
                     await ctx.send_msgs_proxy(msg)
