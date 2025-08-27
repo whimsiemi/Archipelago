@@ -185,7 +185,7 @@ async def parse_game_packets(ctx: PTContext, data):
 
 
 async def on_client_connected(ctx: PTContext):
-    if ctx.room_info and ctx.is_connected():
+    if ctx.room_info and ctx.connected:
         await ctx.send_msgs_proxy(ctx.room_info)
     else:
         ctx.awaiting_info = True
