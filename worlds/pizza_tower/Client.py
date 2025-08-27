@@ -12,6 +12,8 @@ DEBUG = True
 
 # THIS CODE IS LARGELY TAKEN FROM THE HAT IN TIME APWORLD! THANKS COOKIECAT FOR THE POINTERS! -whimsiemi
 
+# to-do list: handle printjsons via the proxy (to make datapackages redundant), clean up things a bit and find a way to properly disconnect proxy client to stop weird shenanigans across different worlds/slots
+
 class PTJSONToTextParser(JSONtoTextParser):
     def _handle_color(self, node: JSONMessagePart):
         return self._handle_text(node)  # No colors for the in-game text
