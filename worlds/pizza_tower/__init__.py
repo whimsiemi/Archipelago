@@ -6,7 +6,17 @@ from .Options import PTOptions, pt_option_groups, pt_option_presets
 from .Regions import create_regions
 from .Rules import set_rules
 from math import floor
-from typing import Any
+from typing import Any, TextIO
+from worlds.LauncherComponents import Component, components, icon_paths, launch as launch_component, Type
+
+def launch_client(*args: str):
+    from .Client import launch
+    launch_component(launch, name="PTClient", args=args)
+
+
+components.append(Component("Pizza Tower Client", "PTClient", func=launch_client, component_type=Type.CLIENT, icon="pizza"))
+
+icon_paths["pizza"] = f"ap:{__name__}/pizza.png"
 
 def internal_from_external(name: str):
     aliases = {
@@ -102,6 +112,7 @@ class PizzaTowerWorld(World):
     options_dataclass = PTOptions
     options: PTOptions
     webworld = PizzaTowerWebWorld
+    apworld_version = (1, 2, 0)
 
     toppin_number: int
     pumpkin_number: int
@@ -262,6 +273,10 @@ class PizzaTowerWorld(World):
                 weighted_filler.append(filler)
         
         return self.random.choice(weighted_filler)
+    
+    def write_spoiler_header(self, spoiler_handle: TextIO):
+        apversion_string = str(self.apworld_version[0]) + "." + str(self.apworld_version[1]) + "." + str(self.apworld_version[2])
+        spoiler_handle.write('{:<32} {:0}'.format("APWorld Version: ", apversion_string))
 
     def fill_slot_data(self):
         return {
@@ -287,5 +302,6 @@ class PizzaTowerWorld(World):
             "shuffle_lap2": bool(self.options.shuffle_lap2),
             "pumpkin_checks": bool(self.options.pumpkin_checks),
             "pumpkin_count": floor(self.pumpkin_number * (self.options.tricky_treat_cost / 100)),
-            "ring_link": bool(self.options.ring_link)
+            "ring_link": bool(self.options.ring_link),
+            "apworld_version": tuple(self.apworld_version) #please double check this. i have no idea if this is the proper way to pass a tuple into slot data
         }
